@@ -1,17 +1,33 @@
-# pabase
+# Pabase Flutter App
 
-A new Flutter project.
+Pabase is a Flutter app that demonstrates various functionalities, including user authentication, image uploading, and basic CRUD operations using the Supabase platform.
 
-## Getting Started
+## Features
 
-This project is a starting point for a Flutter application.
+- **User Authentication**: Users can create accounts, sign in, and sign out securely using Supabase authentication.
 
-A few resources to get you started if this is your first Flutter project:
+- **Image Uploading**: Users can upload images to their profiles.
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+- **CRUD Operations**: The app allows users to perform basic CRUD (Create, Read, Update, Delete) operations, such as creating, updating, and deleting records.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Prerequisites
+
+Before you begin, ensure you have met the following requirements:
+
+- Flutter and Dart SDK are installed.
+
+- You have Supabase credentials (API key, database URL, etc.) set up.
+
+## Setup
+
+1. Clone this repository to your local environment:
+
+   ```bash
+   git clone https://github.com/S13G/pabase.git
+   cd pabase
+   
+2. flutter pub get
+
+3. flutter run
+
 

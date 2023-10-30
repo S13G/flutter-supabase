@@ -13,16 +13,18 @@ class UploadPage extends StatefulWidget {
 
 class _UploadPageState extends State<UploadPage> {
   bool _isUploading = false;
-
   final SupabaseClient supabase = Supabase.instance.client;
 
+  // Function to delete an image
   Future<void> _deleteImage(String imageName) async {
     try {
+      // Remove the image from storage
       await supabase.storage
           .from('user-images')
           .remove(['${supabase.auth.currentUser!.id}/$imageName']);
       setState(() {});
     } catch (error) {
+      // Show a snackbar if there's an error
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Something went wrong'),
@@ -31,6 +33,7 @@ class _UploadPageState extends State<UploadPage> {
     }
   }
 
+  // Function to fetch user's uploaded images
   Future _getMyFiles() async {
     final List<FileObject> results = await supabase.storage
         .from('user-images')
@@ -46,6 +49,7 @@ class _UploadPageState extends State<UploadPage> {
     return myImages;
   }
 
+  // Function to upload a file
   Future<void> _uploadFile() async {
     var pickedFile = await FilePicker.platform
         .pickFiles(allowMultiple: false, type: FileType.image);
@@ -66,6 +70,7 @@ class _UploadPageState extends State<UploadPage> {
           _isUploading = false;
         });
 
+        // Show a snackbar upon successful upload
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
           content: Text('File uploaded successfully'),
           backgroundColor: Colors.green,
@@ -75,6 +80,7 @@ class _UploadPageState extends State<UploadPage> {
           _isUploading = false;
         });
 
+        // Show a snackbar if there's an error during upload
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Something went wrong'),

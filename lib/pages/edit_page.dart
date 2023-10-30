@@ -12,7 +12,7 @@ class EditPage extends StatefulWidget {
 }
 
 class _EditPageState extends State<EditPage> {
-  bool _isLoading = false;
+  bool _isLoading = false; // Indicates if an operation is in progress
   final _titleController = TextEditingController();
   final SupabaseClient supabase = Supabase.instance.client;
 
@@ -24,12 +24,10 @@ class _EditPageState extends State<EditPage> {
     }
 
     try {
-      await supabase
-          .from('todos')
-          .update({'title': _titleController.text}).match(
-        {'id': widget.editID},
-      );
-      Navigator.of(context).pop();
+      // Update data in the 'todos' table
+      await supabase.from('todos').update(
+          {'title': _titleController.text}).match({'id': widget.editID});
+      Navigator.of(context).pop(); // Navigate back to the previous screen
     } catch (error) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -38,7 +36,7 @@ class _EditPageState extends State<EditPage> {
       );
     } finally {
       setState(() {
-        _isLoading = false;
+        _isLoading = false; // Operation completed
       });
     }
   }
@@ -49,10 +47,9 @@ class _EditPageState extends State<EditPage> {
     });
 
     try {
-      await supabase.from('todos').delete().match(
-        {'id': widget.editID},
-      );
-      Navigator.of(context).pop();
+      // Delete data from the 'todos' table
+      await supabase.from('todos').delete().match({'id': widget.editID});
+      Navigator.of(context).pop(); // Navigate back to the previous screen
     } catch (error) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -61,7 +58,7 @@ class _EditPageState extends State<EditPage> {
       );
     } finally {
       setState(() {
-        _isLoading = false;
+        _isLoading = false; // Operation completed
       });
     }
   }
@@ -69,13 +66,14 @@ class _EditPageState extends State<EditPage> {
   @override
   void initState() {
     super.initState();
-    _titleController.text = widget.editData;
+    _titleController.text =
+        widget.editData; // Set the text field with the existing data
   }
 
   @override
   void dispose() {
-    _titleController.dispose();
-    supabase.dispose();
+    _titleController.dispose(); // Clean up the controller
+    supabase.dispose(); // Dispose of the Supabase client
     super.dispose();
   }
 
