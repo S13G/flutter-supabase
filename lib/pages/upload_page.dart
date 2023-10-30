@@ -16,11 +16,20 @@ class _UploadPageState extends State<UploadPage> {
 
   final SupabaseClient supabase = Supabase.instance.client;
 
-  // @override
-  // void initState() {
-  //   _getMyFiles();
-  //   super.initState();
-  // }
+  Future<void> _deleteImage(String imageName) async {
+    try {
+      await supabase.storage
+          .from('user-images')
+          .remove(['${supabase.auth.currentUser!.id}/$imageName']);
+      setState(() {});
+    } catch (error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Something went wrong'),
+        ),
+      );
+    }
+  }
 
   Future _getMyFiles() async {
     final List<FileObject> results = await supabase.storage
@@ -29,12 +38,10 @@ class _UploadPageState extends State<UploadPage> {
     List<Map<String, String>> myImages = [];
 
     for (var image in results) {
-      final getUrl = supabase.storage.from('user-images').getPublicUrl(
-          '${supabase.auth.currentUser!.id}/${image.name}');
-      myImages.add({
-        'name': image.name,
-        'url': getUrl
-      });
+      final getUrl = supabase.storage
+          .from('user-images')
+          .getPublicUrl('${supabase.auth.currentUser!.id}/${image.name}');
+      myImages.add({'name': image.name, 'url': getUrl});
     }
     return myImages;
   }
@@ -112,7 +119,9 @@ class _UploadPageState extends State<UploadPage> {
                     child: Image.network(imageData['url'], fit: BoxFit.cover),
                   ),
                   IconButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      _deleteImage(imageData['name']);
+                    },
                     icon: const Icon(Icons.delete),
                     color: Colors.red,
                   ),
@@ -129,9 +138,9 @@ class _UploadPageState extends State<UploadPage> {
       floatingActionButton: _isUploading
           ? const CircularProgressIndicator()
           : FloatingActionButton(
-        onPressed: _uploadFile,
-        child: const Icon(Icons.photo),
-      ),
+              onPressed: _uploadFile,
+              child: const Icon(Icons.photo),
+            ),
     );
   }
 }
