@@ -15,7 +15,7 @@ class _CreatePageState extends State<CreatePage> {
   final SupabaseClient supabase = Supabase.instance.client;
 
   // syntax to insert a todo
-  Future _insertdata() async {
+  Future _insertData() async {
     setState(() {
       _isLoading = true;
     });
@@ -69,7 +69,7 @@ class _CreatePageState extends State<CreatePage> {
                     child: CircularProgressIndicator(),
                   )
                 : ElevatedButton(
-                    onPressed: _insertdata,
+                    onPressed: _insertData,
                     child: const Text('Create'),
                   ),
           ],

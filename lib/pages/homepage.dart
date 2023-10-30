@@ -3,23 +3,33 @@ import 'package:pabase/pages/create_page.dart';
 import 'package:pabase/pages/edit_page.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
   @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  final SupabaseClient supabase = Supabase.instance.client;
+  late Stream<List<Map<String, dynamic>>> _readStream;
+
+  @override
+  void initState() {
+    _readStream = supabase
+        .from('todos')
+        .stream(primaryKey: ['id'])
+        .eq('user_id', supabase.auth.currentUser!.id)
+        .order('id', ascending: false);
+    super.initState();
+  }
+
+  void logout() async {
+    await supabase.auth.signOut();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final SupabaseClient supabase = Supabase.instance.client;
-
-    // syntax to fetch data
-    Future<List> readData() async {
-      final result = await supabase.from('todos').select();
-      return result;
-    }
-
-    void logout() async {
-      await supabase.auth.signOut();
-    }
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Supabase Flutter'),
@@ -31,21 +41,21 @@ class HomePage extends StatelessWidget {
         ],
       ),
       body: Center(
-          child: FutureBuilder(
-        future: readData(),
+          child: StreamBuilder(
+        stream: _readStream,
         builder: (context, snapshot) {
-          if (snapshot.hasError) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(
               child: CircularProgressIndicator(),
             );
-          }
-
-          if (snapshot.hasData) {
-            if (snapshot.data!.isEmpty) {
-              return const Center(
-                child: Text('No data available'),
-              );
-            }
+          } else if (snapshot.hasError) {
+            return const Center(
+              child: Text('Error loading data'),
+            );
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return const Center(
+              child: Text('No data available'),
+            );
           }
 
           return ListView.builder(
