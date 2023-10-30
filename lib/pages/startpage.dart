@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -13,6 +14,7 @@ class _StartPageState extends State<StartPage> {
 
   bool _signInLoading = false;
   bool _signUpLoading = false;
+  bool _googleSignInLoading = false;
 
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -85,6 +87,24 @@ class _StartPageState extends State<StartPage> {
     }
   }
 
+  void _onGoogleSignIn() async {
+    setState(() {
+      _googleSignInLoading = true;
+    });
+
+    try {
+      await supabase.auth.signInWithOAuth(Provider.google,
+          redirectTo: kIsWeb ? null : 'io.superbase.kazanaapp://login-callback');
+    } catch (error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Sign up Failed"),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
   @override
   void dispose() {
     super.dispose();
@@ -139,19 +159,43 @@ class _StartPageState extends State<StartPage> {
                       return null;
                     },
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 12),
                   _signInLoading
                       ? const CircularProgressIndicator()
                       : ElevatedButton(
                           onPressed: _onSignIn,
                           child: const Text('Sign in'),
                         ),
-                  const Divider(),
                   _signUpLoading
                       ? const CircularProgressIndicator()
                       : OutlinedButton(
                           onPressed: _onSignUp,
                           child: const Text('Sign up'),
+                        ),
+
+                  const Row(
+                    children: [
+                      Expanded(
+                        child: Divider(),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.all(15),
+                        child: Text('OR'),
+                      ),
+                      Expanded(
+                        child: Divider(),
+                      ),
+                    ],
+                  ),
+                  _googleSignInLoading
+                      ? const CircularProgressIndicator()
+                      : OutlinedButton.icon(
+                          onPressed: _onGoogleSignIn,
+                          icon: Image.network(
+                            "https://www.freepnglogos.com/uploads/google-logo-png/google-logo-png-webinar-optimizing-for-success-google-business-webinar-13.png",
+                            height: 30,
+                          ),
+                          label: const Text('Continue with Google'),
                         ),
                 ],
               ),
