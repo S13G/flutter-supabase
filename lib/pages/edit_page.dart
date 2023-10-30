@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class EditPage extends StatefulWidget {
   const EditPage({super.key, required this.editData, required this.editID});
@@ -13,11 +14,69 @@ class EditPage extends StatefulWidget {
 class _EditPageState extends State<EditPage> {
   bool _isLoading = false;
   final _titleController = TextEditingController();
+  final SupabaseClient supabase = Supabase.instance.client;
+
+  Future<void> _updateData() async {
+    if (_titleController.text != '') {
+      setState(() {
+        _isLoading = true;
+      });
+    }
+
+    try {
+      await supabase
+          .from('todos')
+          .update({'title': _titleController.text}).match(
+        {'id': widget.editID},
+      );
+      Navigator.of(context).pop();
+    } catch (error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Something went wrong'),
+        ),
+      );
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _deleteData() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      await supabase.from('todos').delete().match(
+        {'id': widget.editID},
+      );
+      Navigator.of(context).pop();
+    } catch (error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Something went wrong'),
+        ),
+      );
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
 
   @override
   void initState() {
-    _titleController.text = widget.editData;
     super.initState();
+    _titleController.text = widget.editData;
+  }
+
+  @override
+  void dispose() {
+    _titleController.dispose();
+    supabase.dispose();
+    super.dispose();
   }
 
   @override
@@ -48,7 +107,7 @@ class _EditPageState extends State<EditPage> {
                         width: double.infinity,
                         height: 40,
                         child: ElevatedButton(
-                          onPressed: () {},
+                          onPressed: _updateData,
                           child: const Text('Update'),
                         ),
                       ),
@@ -57,7 +116,7 @@ class _EditPageState extends State<EditPage> {
                       ),
                       const Divider(),
                       ElevatedButton.icon(
-                        onPressed: () {},
+                        onPressed: _deleteData,
                         icon: const Icon(Icons.delete),
                         label: const Text('Delete'),
                         style: ButtonStyle(
@@ -72,5 +131,3 @@ class _EditPageState extends State<EditPage> {
     );
   }
 }
-
-
