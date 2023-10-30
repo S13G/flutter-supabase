@@ -18,6 +18,73 @@ class _StartPageState extends State<StartPage> {
   final _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
+  // sign up functionality
+  // supabase.auth.signup(email, pass)
+
+  void _onSignUp() async {
+    final isValid = _formKey.currentState?.validate();
+    if (isValid != true) {
+      return;
+    }
+    setState(() {
+      _signUpLoading = true;
+    });
+    try {
+      await supabase.auth.signUp(
+        email: _emailController.text,
+        password: _passwordController.text,
+      );
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Success! Confirmation Email Sent '),
+          backgroundColor: Colors.green,
+        ),
+      );
+      setState(() {
+        _signUpLoading = false;
+      });
+    } catch (error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Sign up Failed"),
+          backgroundColor: Colors.red,
+        ),
+      );
+      setState(() {
+        _signUpLoading = false;
+      });
+    }
+  }
+
+  // sign in functionality
+  // supabase.auth.signin(email, pass)
+
+  void _onSignIn() async {
+    final isValid = _formKey.currentState?.validate();
+    if (isValid != true) {
+      return;
+    }
+    setState(() {
+      _signInLoading = true;
+    });
+    try {
+      await supabase.auth.signInWithPassword(
+        email: _emailController.text,
+        password: _passwordController.text,
+      );
+    } catch (error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Sign in Failed"),
+          backgroundColor: Colors.red,
+        ),
+      );
+      setState(() {
+        _signInLoading = false;
+      });
+    }
+  }
+
   @override
   void dispose() {
     super.dispose();
@@ -73,15 +140,19 @@ class _StartPageState extends State<StartPage> {
                     },
                   ),
                   const SizedBox(height: 8),
-                  ElevatedButton(
-                    onPressed: () {},
-                    child: const Text('Sign in'),
-                  ),
+                  _signInLoading
+                      ? const CircularProgressIndicator()
+                      : ElevatedButton(
+                          onPressed: _onSignIn,
+                          child: const Text('Sign in'),
+                        ),
                   const Divider(),
-                  OutlinedButton(
-                    onPressed: () {},
-                    child: const Text('Sign up'),
-                  ),
+                  _signUpLoading
+                      ? const CircularProgressIndicator()
+                      : OutlinedButton(
+                          onPressed: _onSignUp,
+                          child: const Text('Sign up'),
+                        ),
                 ],
               ),
             ),
